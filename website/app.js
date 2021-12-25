@@ -5,38 +5,30 @@ const port = `http://localhost:3333`
 
 // Create a new date instance dynamically with JS
 let d = new Date();
-let newDate = d.getMonth()+'.'+ d.getDate()+'.'+ d.getFullYear();
+let newDate = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
 
 //add click event to the generate btn
-document.querySelector('#generate').addEventListener('click',()=>{
-    const zip = document.querySelector('#zip').value;
-    const feelings = document.querySelector('#feelings').value;
+document.getElementById('generate').addEventListener('click',()=>{
+    const zip = document.getElementById('zip').value;
+    const feelings = document.getElementById('feelings').value;
 
-    getData(zip).then((data)=>{
-        
-        if(data){
-            const {main : {temp}} = data;
+    getWeather = async (zip)=>{
+        try {
+            const res = await fetch(mainURL + zip + apiKey).then((data)=>{
+                postData(port +'/add',{
+                    currentdata: newDate,
+                    temper: data.main.temp,
+                    feeling: feelings
+                })
+            })
+            const data = await res.json();
+            return data
+        } catch (err) {
+            console.log("error", err); 
         }
-        const info = {
-            newDate,
-            temp,
-            feelings
-        }
-    })
-}
-)
-
-//get data from api
-const getData = async (zip)=>{
-    try {
-        const res = await fetch(mainURL + zip + apiKey)
-        const data = await res.json();
-        return data
-    } catch (err) {
-        console.log(err)
     }
-}
-
+    updateUI();
+})
 
 //post data 
 const postData = async (url = '', info = {} )=>{
@@ -51,21 +43,19 @@ const postData = async (url = '', info = {} )=>{
         const newDate = await res.json()
         return newDate;
     } catch (err) {
-        console.log(err)
+        console.log("error", err);
     }
 }
 
-
-
-const updataUI = async()=>{
-    const res = await fetch(port +'/all')
+// to updataUI from the server and past it in the client side
+const updateUI = async()=>{
+    const res = await fetch('/all')
     try {
-        const savedData = await res.json();
-
-        document.querySelector('#date').innerHTML = savedData.newDate
-        document.querySelector('#temp').innerHTML = savedData.temp
-        document.querySelector('#content').innerHTML = savedData.feelings
+        const allData = await res.json();
+        document.getElementById('date').innerHTML = allData.date;
+        document.getElementById('temp').innerHTML = allData.temp;
+        document.getElementById('content').innerHTML = allData.content;
     } catch (err) {
-        console.log(err)
+        console.log("error", err);
     }
 }
