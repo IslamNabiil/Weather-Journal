@@ -18,3 +18,31 @@ const getData = async (mainURL, zip, apiKey) => {
         console.log('error',err);
     }
 };
+
+//post data to the local url
+const postData = async (url = '', info = {}) => {
+    const res = await fetch(url, {
+        method:"POST",
+        headers: {
+            "Content-Type":"application/json",
+        },
+        body: JSON.stringify(info),
+    });
+    try {
+        const newDate = await res.json()
+        return newDate;
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+//function of updating the information to the user
+const updateUI = async (inputs) => {
+    const saveData = await postData('/all', inputs);
+    const feeling = saveData['feelings'];
+    
+    //insert the new data in the page
+    document.getElementById('date').innerHTML = `Date: ${newDate}`;
+    document.getElementById('content').innerHTML =`Feelings: ${feeling}`;
+    return saveData;
+};
