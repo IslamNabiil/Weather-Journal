@@ -36,13 +36,45 @@ const postData = async (url = '', info = {}) => {
     }
 }
 
-//function of updating the information to the user
-const updateUI = async (inputs) => {
-    const saveData = await postData('/all', inputs);
-    const feeling = saveData['feelings'];
-    
-    //insert the new data in the page
-    document.getElementById('date').innerHTML = `Date: ${newDate}`;
-    document.getElementById('content').innerHTML =`Feelings: ${feeling}`;
-    return saveData;
-};
+
+//add click event on generate btn
+document.getElementById('generate').addEventListener('click', ()=> {
+
+    const weather = async () => {
+        const zip = document.getElementById('zip').value;
+        const feelings = document.getElementById('feelings').value;
+
+        const entries = async (zip, feelings) => {
+            const weatherAsync = await getData(mainURL, zip, apiKey);
+            let temp = weatherAsync.main.temp;//get the current temp from the API
+
+            let inputs = {
+                'zip-code': zip,
+                'feelings': feelings,
+                'temp': temp,
+                'date': newDate
+            };
+
+            await updateUI(inputs);
+            document.getElementById('temp').innerHTML = `Temperature: ${temp} °C`;
+            return inputs;
+        }
+        
+        //Initiate validation
+        await entries(zip, feelings);
+    };
+
+    //function of updating the information to the user
+    const updateUI = async (inputs) => {
+        const saveData = await postData('/all', inputs);
+        const feeling = saveData['feelings'];
+        
+        //insert the new data in the page
+        document.getElementById('date').innerHTML = `Date: ${newDate}`;
+        document.getElementById('content').innerHTML =`Feelings: ${feeling}`;
+        return saveData;
+    };
+
+    //Initiate acynchromnus functions weather() and updataUI() on click
+    weather();
+});
